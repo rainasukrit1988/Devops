@@ -1,0 +1,79 @@
+Peabody Prod build changes
+------------------------------------------
+
+DEVICE: POD5 BO3 LB (172.16.10.12)
+	PANORAMA (10.0.0.35)
+
+Zone-for-PEABODYAUSINVEST-WFC
+ADD NET-010.011.072.064-27
+REMOVE NET-010.011.095.064-27
+
+
+DEPLOYMENT:POD5 BO3 LB (172.16.10.12)
+--------------------------------------
+
+1) GOTO Local Traffic  ››  Address Translation : SNAT List  ››  peabodyenergy.kronos.net
+2) From Address List >> DELETE 10.11.72.64/255.255.255.224
+3) ADD "Host" 10.11.72.66 , 10.11.72.67
+4) UPDATE
+
+5) GOTO Local Traffic  ››  Address Translation : SNAT List  ››  peabodyenergy-au.kronos.net
+6) From Address List >> DELETE 10.11.95.64/255.255.255.224
+7) ADD "Host" 10.11.72.68
+8) UPDATE
+
+9) REMOVE member c-peabdy-p-a03 from pools peabodyenergy-au.kronos.net-HTTP, peabodyenergy-au.kronos.net-HTTP-ALL, peabodyenergy-au.kronos.net-HTTP-WDM
+10)DELETE node c-peabdy-p-a03
+11)CREATE node c-peabdy-p-a03 with IP 10.11.72.68 using standar build parameters
+12)Add member c-peabdy-p-a03 to pools pools peabodyenergy-au.kronos.net-HTTP, peabodyenergy-au.kronos.net-HTTP-ALL, peabodyenergy-au.kronos.net-HTTP-WDM
+
+13) GOTO Local Traffic  ››  iRules : Data Group List  ››  peabodyenergy-au.kronos.net
+14) From "String Records" >> edit the a03 string and re-IP it to 10.11.72.68
+15) UPDATE
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ROLLBACK:POD5 BO3 LB (172.16.10.12)
+------------------------------------
+
+1) GOTO Local Traffic  ››  Address Translation : SNAT List  ››  peabodyenergy.kronos.net
+2) From Address List >> DELETE 10.11.72.66 , 10.11.72.67
+3) ADD "network" 10.11.72.64/255.255.255.224
+4) UPDATE 
+
+5) GOTO Local Traffic  ››  Address Translation : SNAT List  ››  peabodyenergy-au.kronos.net
+6) From Address List >> DELETE 10.11.72.68
+7) ADD "Network" 10.11.95.64/255.255.255.224
+8) UPDATE
+
+9) REMOVE member c-peabdy-p-a03 from pools peabodyenergy-au.kronos.net-HTTP, peabodyenergy-au.kronos.net-HTTP-ALL, peabodyenergy-au.kronos.net-HTTP-WDM
+10)DELETE node c-peabdy-p-a03
+11)CREATE node c-peabdy-p-a03 with IP 10.11.95.66 using standar build parameters
+12)Add member c-peabdy-p-a03 to pools pools peabodyenergy-au.kronos.net-HTTP, peabodyenergy-au.kronos.net-HTTP-ALL, peabodyenergy-au.kronos.net-HTTP-WDM
+
+13) GOTO Local Traffic  ››  iRules : Data Group List  ››  peabodyenergy-au.kronos.net
+14) From "String Records" >> edit the a03 string and re-IP it to 10.11.95.66
+15) UPDATE
+
+###########################################################################################################################################################
+
+
+DEPLOYMENT:PANORAMA (10.0.0.35)
+
+
+1) OPEN policy Zone-for-PEABODYAUSINVEST-WFC
+2) REMOVE from Source and Destination Address : NET-010.011.095.064-27
+3) ADD to Source and Destination Address : NET-010.011.072.064-27
+4) commit to panorama and device group KCS-BO3-POD05
+
+ROLLBACK:PANORAMA (10.0.0.35)
+
+1) OPEN policy Zone-for-PEABODYAUSINVEST-WFC
+2) REMOVE from Source and Destination Address :  NET-010.011.072.064-27
+3) ADD to Source and Destination Address : NET-010.011.095.064-27
+4) commit to panorama and device group KCS-BO3-POD05
+
+
+VALIDATION:
+
+Requester will validate 
